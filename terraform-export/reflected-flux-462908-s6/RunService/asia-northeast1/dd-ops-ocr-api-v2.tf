@@ -16,7 +16,7 @@ resource "google_cloud_run_v2_service" "dd_ops_ocr_api_v2" {
 
       env {
         name  = "GCS_BUCKET_NAME"
-        value = "app_contracts_staging"
+        value = "app_contracts"
       }
 
       env {

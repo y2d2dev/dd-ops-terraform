@@ -2,7 +2,7 @@ resource "google_storage_bucket" "app_contracts" {
   cors {
     max_age_seconds = 3600
     method          = ["GET", "HEAD", "OPTIONS"]
-    origin          = ["https://dd-ops.net", "https://dd-ops-staging-75499681521.asia-east1.run.app"]
+    origin          = ["https://dd-ops.net"]
     response_header = ["Content-Type", "Content-Length", "Content-Disposition", "x-goog-meta-*"]
   }
 

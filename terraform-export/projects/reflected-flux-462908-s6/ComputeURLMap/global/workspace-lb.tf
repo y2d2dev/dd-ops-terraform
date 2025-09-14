@@ -27,10 +27,6 @@ resource "google_compute_url_map" "workspace_lb" {
       service = "https://www.googleapis.com/compute/v1/projects/reflected-flux-462908-s6/global/backendBuckets/app-contracts-backend"
     }
 
-    path_rule {
-      paths   = ["/pdf_stg/*"]
-      service = "https://www.googleapis.com/compute/v1/projects/reflected-flux-462908-s6/global/backendBuckets/app-contracts-staging-backend-bucket"
-    }
   }
 
   project = "reflected-flux-462908-s6"
