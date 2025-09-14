@@ -1,4 +1,134 @@
-🚀 terraform applyで作成されるGCPリソース一覧
+# DD-OPS Terraform Infrastructure
+
+## 📋 プロジェクト概要
+
+このTerraformコードは、**任意のGCPアカウントで同一構成のDD-OPS環境を簡単に構築できる**よう完全ポータブル化されています。
+
+### 🎯 主な改善点
+
+#### **Before（問題点）**
+- ❌ プロジェクトIDやドメインがハードコード
+- ❌ Dockerイメージが特定アカウントに依存
+- ❌ 手動セットアップが複雑
+- ❌ 別アカウントでの再現が困難
+
+#### **After（解決策）**
+- ✅ 全ての値が変数化済み
+- ✅ sub_domainシステムで簡単ドメイン管理（`demo.dd-ops.net`）
+- ✅ 完全自動CI/CDシステム（GitHub push → Build → Deploy）
+- ✅ ワンコマンド自動セットアップ（`./setup.sh`）
+
+### 🚀 新しいアカウントでの簡単デプロイ
+
+```bash
+# たった4ステップで完了！
+git clone <このリポジトリ>
+cd dd-ops-terraform
+cp terraform.tfvars.example terraform.tfvars
+# project_id, sub_domain, github設定を編集
+./setup.sh
+```
+
+### 📁 主要ファイル構成
+
+```
+dd-ops-terraform/
+├── main.tf                    # メインのインフラ定義
+├── variables.tf               # 変数定義（完全変数化済み）
+├── outputs.tf                 # 出力定義
+├── artifact_registry.tf       # Dockerレジストリ
+├── cloud_build.tf            # 自動ビルドシステム
+├── terraform.tfvars.example  # 設定例テンプレート
+├── setup.sh                  # 自動セットアップスクリプト
+├── validate.sh               # 設定検証スクリプト
+├── README.md                 # このファイル
+└── WORKLOG.md               # 改善作業履歴
+```
+
+## 🔄 自動CI/CDシステム
+
+GitHubにコードをpushすると、以下が自動実行されます：
+
+```
+GitHub Push → Cloud Build Trigger → Docker Build → Artifact Registry → Cloud Run Deploy
+```
+
+**各サービスが自動デプロイ対象**:
+- `dd-ops-main`: DD-OPSメインアプリケーション
+- `dd-ops-ocr-api-v2`: OCR処理API
+- `file-upload-app`: ファイルアップロードサービス
+- `get-file-path`: ファイルパス取得サービス
+
+**デプロイフロー**:
+1. 🔨 Dockerイメージをビルド
+2. 📦 Artifact Registryにプッシュ
+3. 🚀 Cloud Runサービスに自動デプロイ
+4. ✅ 新しいバージョンが即座に反映
+
+---
+
+## 🛠️ 詳細セットアップ手順
+
+### 1. 設定ファイルの準備
+```bash
+# terraform.tfvars.exampleをコピー
+cp terraform.tfvars.example terraform.tfvars
+```
+
+### 2. terraform.tfvarsの編集
+以下の値を実際の環境に合わせて変更してください：
+
+```hcl
+# あなたのGCPプロジェクトID
+project_id = "my-gcp-project-123"  # ← 実際のプロジェクトIDに変更
+
+# サブドメイン（自動でdemo.dd-ops.net, www.demo.dd-ops.netが生成される）
+sub_domain = "demo"  # ← あなたの環境名に変更（例：staging, client-a, など）
+
+# Dockerイメージパス（プロジェクトIDを含む）
+dd_ops_image         = "asia-northeast1-docker.pkg.dev/my-gcp-project-123/app-images/dd-ops:latest"
+ocr_api_image        = "asia-northeast1-docker.pkg.dev/my-gcp-project-123/app-images/ocr-api:latest"
+file_upload_image    = "asia-northeast1-docker.pkg.dev/my-gcp-project-123/app-images/file-upload:latest"
+get_file_path_image  = "asia-northeast1-docker.pkg.dev/my-gcp-project-123/app-images/get-file-path:latest"
+
+# GitHub設定（自動ビルド用）
+github_owner = "your-github-username"  # ← あなたのGitHubユーザー名
+github_repo  = "dd-ops-app"            # ← リポジトリ名
+```
+
+**ドメインについて**:
+- `sub_domain = "demo"` を設定すると、自動で以下が生成されます：
+  - メインドメイン: `demo.dd-ops.net`
+  - WWWドメイン: `www.demo.dd-ops.net`
+  - CORS設定: `https://demo.dd-ops.net`
+
+### 3. 自動セットアップの実行 (推奨)
+```bash
+# 設定の検証（オプション）
+./validate.sh
+
+# 自動セットアップの実行
+./setup.sh
+```
+
+### 3-B. 手動セットアップ（上級者向け）
+```bash
+# 必要なAPIの有効化
+gcloud services enable compute.googleapis.com run.googleapis.com cloudbuild.googleapis.com
+
+# Terraformの初期化
+terraform init
+
+# プランの確認
+terraform plan
+
+# 実際のデプロイ
+terraform apply
+```
+
+---
+
+## 🚀 terraform applyで作成されるGCPリソース一覧
 
   📦 ネットワーク関連
 

@@ -5,7 +5,6 @@
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
-  default     = "reflected-flux-462908-s6"
 }
 
 variable "environment" {
@@ -53,25 +52,21 @@ variable "enable_private_google_access" {
 variable "dd_ops_image" {
   description = "Docker image for DD-OPS main application"
   type        = string
-  default     = "asia-northeast1-docker.pkg.dev/reflected-flux-462908-s6/cloud-run-source-deploy/dd-ops:latest"
 }
 
 variable "ocr_api_image" {
   description = "Docker image for OCR API service"
   type        = string
-  default     = "asia-northeast1-docker.pkg.dev/reflected-flux-462908-s6/cloud-run-source-deploy/dd-ops-ocr-api-v2:latest"
 }
 
 variable "file_upload_image" {
   description = "Docker image for file upload service"
   type        = string
-  default     = "asia-northeast1-docker.pkg.dev/reflected-flux-462908-s6/cloud-run-source-deploy/file-upload-app:latest"
 }
 
 variable "get_file_path_image" {
   description = "Docker image for get file path service"
   type        = string
-  default     = "asia-northeast1-docker.pkg.dev/reflected-flux-462908-s6/cloud-run-source-deploy/get-file-path:latest"
 }
 
 variable "cloud_run_cpu_limit" {
@@ -210,11 +205,7 @@ variable "lifecycle_age_days" {
   default     = 90
 }
 
-variable "cors_origins" {
-  description = "CORS allowed origins"
-  type        = list(string)
-  default     = ["https://dd-ops.net"]
-}
+# CORS origins will be dynamically generated from sub_domain + base_domain
 
 variable "cors_methods" {
   description = "CORS allowed methods"
@@ -226,10 +217,19 @@ variable "cors_methods" {
 # Load Balancer Variables
 # ========================================
 
-variable "domains" {
-  description = "Domain names for SSL certificate and load balancer"
-  type        = list(string)
-  default     = ["dd-ops.net", "www.dd-ops.net"]
+variable "sub_domain" {
+  description = "Subdomain prefix for {sub_domain}.dd-ops.net"
+  type        = string
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$", var.sub_domain))
+    error_message = "Subdomain must be a valid DNS label (lowercase, alphanumeric, hyphens allowed, max 63 chars)."
+  }
+}
+
+variable "base_domain" {
+  description = "Base domain managed by the main GCP account"
+  type        = string
+  default     = "dd-ops.net"
 }
 
 variable "ssl_policy" {
@@ -443,6 +443,58 @@ variable "transaction_log_retention_days" {
   description = "Number of days to retain transaction logs"
   type        = number
   default     = 7
+}
+
+# ========================================
+# GitHub and Cloud Build Variables
+# ========================================
+
+variable "github_owner" {
+  description = "GitHub repository owner/organization name"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+}
+
+variable "branch_name" {
+  description = "Git branch name to trigger builds on"
+  type        = string
+  default     = "main"
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9/_-]+$", var.branch_name))
+    error_message = "Branch name must contain only letters, numbers, underscores, slashes, and hyphens."
+  }
+}
+
+variable "enable_auto_build" {
+  description = "Enable automatic builds on git push"
+  type        = bool
+  default     = true
+}
+
+variable "dockerfile_paths" {
+  description = "Relative paths to Dockerfiles for each service"
+  type        = map(string)
+  default = {
+    dd_ops        = "./apps/dd-ops/Dockerfile"
+    ocr_api       = "./apps/ocr-api/Dockerfile"
+    file_upload   = "./apps/file-upload/Dockerfile"
+    get_file_path = "./apps/get-file-path/Dockerfile"
+  }
+}
+
+variable "build_contexts" {
+  description = "Build context paths for each service"
+  type        = map(string)
+  default = {
+    dd_ops        = "./apps/dd-ops"
+    ocr_api       = "./apps/ocr-api"
+    file_upload   = "./apps/file-upload"
+    get_file_path = "./apps/get-file-path"
+  }
 }
 
 # ========================================

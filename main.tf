@@ -9,6 +9,26 @@ data "google_project" "main" {
 }
 
 # ========================================
+# Local Values
+# ========================================
+locals {
+  # Dynamic domain construction
+  full_domain   = "${var.sub_domain}.${var.base_domain}"
+  www_domain    = "www.${var.sub_domain}.${var.base_domain}"
+  domains       = [local.full_domain, local.www_domain]
+  cors_origins  = ["https://${local.full_domain}"]
+
+  # Dynamic container image paths
+  # Currently uses variables, but will be enhanced to use Artifact Registry references
+  container_images = {
+    dd_ops        = var.dd_ops_image
+    ocr_api       = var.ocr_api_image
+    file_upload   = var.file_upload_image
+    get_file_path = var.get_file_path_image
+  }
+}
+
+# ========================================
 # Networking Resources
 # ========================================
 
@@ -48,7 +68,7 @@ resource "google_cloud_run_v2_service" "dd_ops" {
 
   template {
     containers {
-      image = var.dd_ops_image
+      image = local.container_images.dd_ops
 
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
@@ -102,7 +122,7 @@ resource "google_cloud_run_v2_service" "ocr_api" {
 
   template {
     containers {
-      image = var.ocr_api_image
+      image = local.container_images.ocr_api
 
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
@@ -156,7 +176,7 @@ resource "google_cloud_run_v2_service" "file_upload" {
 
   template {
     containers {
-      image = var.file_upload_image
+      image = local.container_images.file_upload
 
       env {
         name  = "NEXT_PUBLIC_BUCKET_NAME"
@@ -205,7 +225,7 @@ resource "google_cloud_run_v2_service" "get_file_path" {
 
   template {
     containers {
-      image = var.get_file_path_image
+      image = local.container_images.get_file_path
 
       resources {
         limits = {
@@ -328,7 +348,7 @@ resource "google_storage_bucket" "app_contracts" {
   force_destroy               = false
 
   cors {
-    origin          = var.cors_origins
+    origin          = local.cors_origins
     method          = ["GET", "HEAD", "OPTIONS"]
     response_header = ["Content-Type", "Content-Length", "Content-Disposition", "x-goog-meta-*"]
     max_age_seconds = 3600
@@ -516,7 +536,7 @@ resource "google_compute_url_map" "main" {
   project         = var.project_id
 
   host_rule {
-    hosts        = var.domains
+    hosts        = local.domains
     path_matcher = "main-paths"
   }
 
@@ -586,7 +606,7 @@ resource "google_compute_managed_ssl_certificate" "main" {
   project = var.project_id
 
   managed {
-    domains = var.domains
+    domains = local.domains
   }
 }
 
