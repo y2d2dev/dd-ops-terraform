@@ -102,7 +102,7 @@ output "load_balancer_ip" {
 
 output "load_balancer_url" {
   description = "URL of the load balancer"
-  value       = "https://${var.domains[0]}"
+  value       = "https://${local.domains[0]}"
 }
 
 output "ssl_certificate_name" {

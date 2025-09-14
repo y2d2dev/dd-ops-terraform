@@ -39,10 +39,10 @@ resource "google_artifact_registry_repository_iam_member" "cloud_build_writer" {
 
 # Allow Cloud Run services to pull from Artifact Registry
 resource "google_artifact_registry_repository_iam_member" "cloud_run_reader" {
-  for_each = toset([
-    google_service_account.dd_ops_sa.email,
-    google_service_account.file_upload_sa.email,
-  ])
+  for_each = {
+    dd_ops      = google_service_account.dd_ops_sa.email
+    file_upload = google_service_account.file_upload_sa.email
+  }
 
   project    = var.project_id
   location   = google_artifact_registry_repository.app_images.location
@@ -55,19 +55,9 @@ resource "google_artifact_registry_repository_iam_member" "cloud_run_reader" {
 # Repository Cleanup Policy
 # ========================================
 
-# Cleanup policy to keep only recent images
-resource "google_artifact_registry_repository" "app_images_with_cleanup" {
-  depends_on = [google_artifact_registry_repository.app_images]
-
-  # This is a workaround since cleanup_policies can't be added directly to the repository resource
-  # We'll use lifecycle rules instead
-  lifecycle {
-    ignore_changes = [cleanup_policies]
-  }
-}
-
-# Note: Cleanup policies need to be configured manually or via gcloud CLI
+# Note: Cleanup policies need to be configured manually or via gcloud CLI after deployment
 # Example: Keep only the last 10 versions of each image
 # gcloud artifacts repositories set-cleanup-policy app-images \
 #   --location=asia-northeast1 \
-#   --policy=policy.json
+#   --project=${var.project_id} \
+#   --policy='{"rules":[{"action":"DELETE","condition":{"versionAge":"30d"}}]}'

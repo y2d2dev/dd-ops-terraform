@@ -13,10 +13,10 @@ data "google_project" "main" {
 # ========================================
 locals {
   # Dynamic domain construction
-  full_domain   = "${var.sub_domain}.${var.base_domain}"
-  www_domain    = "www.${var.sub_domain}.${var.base_domain}"
-  domains       = [local.full_domain, local.www_domain]
-  cors_origins  = ["https://${local.full_domain}"]
+  full_domain  = "${var.sub_domain}.${var.base_domain}"
+  www_domain   = "www.${var.sub_domain}.${var.base_domain}"
+  domains      = [local.full_domain, local.www_domain]
+  cors_origins = ["https://${local.full_domain}"]
 
   # Dynamic container image paths
   # Currently uses variables, but will be enhanced to use Artifact Registry references
@@ -57,14 +57,40 @@ resource "google_compute_subnetwork" "main_subnet" {
 }
 
 # ========================================
+# Private Service Connection (for Cloud SQL)
+# ========================================
+
+# Private IP allocation for Google services
+resource "google_compute_global_address" "private_ip_peering" {
+  name          = "${var.environment}-private-ip-peering"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.main_vpc.id
+  project       = var.project_id
+}
+
+# Private connection to Google services
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = google_compute_network.main_vpc.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_peering.name]
+}
+
+# ========================================
 # Cloud Run Services
 # ========================================
 
 # DD-OPS Main Application
 resource "google_cloud_run_v2_service" "dd_ops" {
-  name     = "dd-ops-${var.environment}"
+  name     = "dd-ops"
   location = var.region
   project  = var.project_id
+
+  depends_on = [
+    google_project_iam_member.dd_ops_permissions,
+    google_secret_manager_secret.database_url
+  ]
 
   template {
     containers {
@@ -270,10 +296,12 @@ resource "google_cloud_run_v2_service" "get_file_path" {
 # ========================================
 
 resource "google_sql_database_instance" "main" {
-  name             = "dd-ops-db-${var.environment}"
+  name             = "dd-ops-db"
   database_version = "POSTGRES_15"
   region           = var.region
   project          = var.project_id
+
+  depends_on = [google_service_networking_connection.private_vpc_connection]
 
   settings {
     tier              = var.db_tier
@@ -340,7 +368,7 @@ resource "google_sql_user" "app_user" {
 
 # Application Contracts Bucket
 resource "google_storage_bucket" "app_contracts" {
-  name     = "app-contracts-${var.environment}"
+  name     = "app-contracts"
   location = upper(var.region)
   project  = var.project_id
 
@@ -370,7 +398,7 @@ resource "google_storage_bucket" "app_contracts" {
 
 # DD-OPS Models Bucket
 resource "google_storage_bucket" "dd_ops_models" {
-  name     = "dd-ops-models-${var.environment}"
+  name     = "dd-ops-models"
   location = upper(var.region)
   project  = var.project_id
 
@@ -387,13 +415,13 @@ resource "google_storage_bucket" "dd_ops_models" {
 # ========================================
 
 resource "google_service_account" "dd_ops_sa" {
-  account_id   = "dd-ops-${var.environment}"
+  account_id   = "dd-ops"
   display_name = "DD-OPS Service Account"
   project      = var.project_id
 }
 
 resource "google_service_account" "file_upload_sa" {
-  account_id   = "file-upload-${var.environment}"
+  account_id   = "file-upload"
   display_name = "File Upload Service Account"
   project      = var.project_id
 }
@@ -486,7 +514,7 @@ resource "google_pubsub_subscription" "ocr" {
 # ========================================
 
 resource "google_secret_manager_secret" "database_url" {
-  secret_id = "database-url-${var.environment}"
+  secret_id = "database-url"
   project   = var.project_id
 
   replication {
@@ -504,6 +532,14 @@ resource "google_secret_manager_secret_version" "database_url" {
     google_sql_database_instance.main.private_ip_address,
     google_sql_database.main.name
   )
+
+  lifecycle {
+    replace_triggered_by = [
+      google_sql_database_instance.main,
+      google_sql_user.app_user,
+      random_password.db_password
+    ]
+  }
 }
 
 # ========================================
@@ -568,8 +604,6 @@ resource "google_compute_backend_service" "dd_ops_backend" {
   backend {
     group = google_compute_region_network_endpoint_group.dd_ops_neg.id
   }
-
-  health_checks = [google_compute_health_check.http.id]
 }
 
 # Network Endpoint Group for Cloud Run

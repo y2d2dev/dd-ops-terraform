@@ -10,19 +10,34 @@ resource "google_project_service" "cloud_build_api" {
   disable_dependent_services = false
 }
 
+# Source Repository API は権限不足のため無効化
+# テスト環境では使用しない
+/*
 resource "google_project_service" "source_manager_api" {
   project = var.project_id
   service = "sourcerepo.googleapis.com"
 
   disable_dependent_services = false
 }
+*/
 
 # ========================================
 # GitHub Repository Connection
 # ========================================
 
-# GitHub App Connection (requires manual setup)
-# Note: This needs to be created manually in the Console first
+# ⚠️  IMPORTANT: Private Repository Setup Required
+#
+# For PRIVATE repositories, you must manually connect GitHub to Cloud Build:
+# 1. Go to: https://console.cloud.google.com/cloud-build/triggers
+# 2. Click "CONNECT REPOSITORY"
+# 3. Select "GitHub (Cloud Build GitHub App)"
+# 4. Install/Configure GitHub App with access to:
+#    - y2d2dev/dd-ops-v2 (private)
+#    - y2d2dev/dd-ops-ocr (private)
+#    - y2d2dev/file-upload-app (private)
+# 5. Complete OAuth flow
+#
+# Alternative: Use Cloud Source Repository mirroring
 # https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github
 
 # ========================================
@@ -30,14 +45,17 @@ resource "google_project_service" "source_manager_api" {
 # ========================================
 
 # Build trigger for DD-OPS main application
+# DISABLED: Requires GitHub App setup for private repositories
+# Uncomment after completing GitHub connection setup
+/*
 resource "google_cloudbuild_trigger" "dd_ops_build" {
   project     = var.project_id
   name        = "dd-ops-${var.environment}-build"
   description = "Build DD-OPS main application on ${var.branch_name} branch changes"
 
   github {
-    owner = var.github_owner
-    name  = var.github_repo
+    owner = var.github_repositories.dd_ops.owner
+    name  = var.github_repositories.dd_ops.repo
     push {
       branch = "^${var.branch_name}$"
     }
@@ -89,16 +107,19 @@ resource "google_cloudbuild_trigger" "dd_ops_build" {
     google_artifact_registry_repository.app_images
   ]
 }
+*/
 
 # Build trigger for OCR API service
+# DISABLED: Requires GitHub App setup for private repositories
+/*
 resource "google_cloudbuild_trigger" "ocr_api_build" {
   project     = var.project_id
   name        = "ocr-api-${var.environment}-build"
   description = "Build OCR API service on ${var.branch_name} branch changes"
 
   github {
-    owner = var.github_owner
-    name  = var.github_repo
+    owner = var.github_repositories.ocr_api.owner
+    name  = var.github_repositories.ocr_api.repo
     push {
       branch = "^${var.branch_name}$"
     }
@@ -150,16 +171,19 @@ resource "google_cloudbuild_trigger" "ocr_api_build" {
     google_artifact_registry_repository.app_images
   ]
 }
+*/
 
 # Build trigger for File Upload service
+# DISABLED: Requires GitHub App setup for private repositories
+/*
 resource "google_cloudbuild_trigger" "file_upload_build" {
   project     = var.project_id
   name        = "file-upload-${var.environment}-build"
   description = "Build File Upload service on ${var.branch_name} branch changes"
 
   github {
-    owner = var.github_owner
-    name  = var.github_repo
+    owner = var.github_repositories.file_upload.owner
+    name  = var.github_repositories.file_upload.repo
     push {
       branch = "^${var.branch_name}$"
     }
@@ -211,16 +235,19 @@ resource "google_cloudbuild_trigger" "file_upload_build" {
     google_artifact_registry_repository.app_images
   ]
 }
+*/
 
 # Build trigger for Get File Path service
+# DISABLED: Requires GitHub App setup for private repositories
+/*
 resource "google_cloudbuild_trigger" "get_file_path_build" {
   project     = var.project_id
   name        = "get-file-path-${var.environment}-build"
   description = "Build Get File Path service on ${var.branch_name} branch changes"
 
   github {
-    owner = var.github_owner
-    name  = var.github_repo
+    owner = var.github_repositories.get_file_path.owner
+    name  = var.github_repositories.get_file_path.repo
     push {
       branch = "^${var.branch_name}$"
     }
@@ -272,6 +299,7 @@ resource "google_cloudbuild_trigger" "get_file_path_build" {
     google_artifact_registry_repository.app_images
   ]
 }
+*/
 
 # ========================================
 # Cloud Build Service Account IAM

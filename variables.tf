@@ -449,14 +449,43 @@ variable "transaction_log_retention_days" {
 # GitHub and Cloud Build Variables
 # ========================================
 
+variable "github_repositories" {
+  description = "GitHub repositories for each service"
+  type = map(object({
+    owner = string
+    repo  = string
+  }))
+  default = {
+    dd_ops = {
+      owner = "y2d2dev"
+      repo  = "dd-ops-v2"
+    }
+    ocr_api = {
+      owner = "y2d2dev"
+      repo  = "dd-ops-ocr"
+    }
+    file_upload = {
+      owner = "y2d2dev"
+      repo  = "file-upload-app"
+    }
+    get_file_path = {
+      owner = "y2d2dev"
+      repo  = "dd-ops-v2" # get-file-pathもdd-ops-v2に含まれる想定
+    }
+  }
+}
+
+# 後方互換性のための変数（非推奨）
 variable "github_owner" {
-  description = "GitHub repository owner/organization name"
+  description = "GitHub repository owner/organization name (DEPRECATED: use github_repositories instead)"
   type        = string
+  default     = ""
 }
 
 variable "github_repo" {
-  description = "GitHub repository name"
+  description = "GitHub repository name (DEPRECATED: use github_repositories instead)"
   type        = string
+  default     = ""
 }
 
 variable "branch_name" {
@@ -473,6 +502,17 @@ variable "enable_auto_build" {
   description = "Enable automatic builds on git push"
   type        = bool
   default     = true
+}
+
+variable "github_connection_name" {
+  description = "GitHub connection name (required for private repos). Set after manual GitHub App setup."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.github_connection_name != "" || !var.enable_auto_build
+    error_message = "github_connection_name is required when enable_auto_build is true for private repositories."
+  }
 }
 
 variable "dockerfile_paths" {
