@@ -1,3 +1,42 @@
-.terraform
-.claude
-.history
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Variable files with sensitive data
+terraform.tfvars
+*.auto.tfvars
+
+# IDE files
+.claude/
+.history/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.*
+
+# Backup files
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+.temp/
+
+# Lock files (keep for consistency)
+# .terraform.lock.hcl
