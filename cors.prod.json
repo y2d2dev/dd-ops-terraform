@@ -1,0 +1,20 @@
+[
+    {
+        "origin": [
+            "https://dd-ops.net",
+            "https://dd-ops-staging-75499681521.asia-east1.run.app"
+        ],
+        "method": [
+            "GET",
+            "HEAD",
+            "OPTIONS"
+        ],
+        "responseHeader": [
+            "Content-Type",
+            "Content-Length",
+            "Content-Disposition",
+            "x-goog-meta-*"
+        ],
+        "maxAgeSeconds": 3600
+    }
+]

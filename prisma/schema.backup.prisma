@@ -1,0 +1,81 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-1.1.x", "linux-musl-arm64-openssl-3.0.x", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contract {
+  id                Int            @id @default(autoincrement())
+  projectId         Int
+  fileName          String
+  title             String?
+  promisor          String?
+  promisee          String?
+  startDate         String?
+  endDate           String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime
+  isSave            Boolean        @default(false)
+  baseName          String?
+  reportGeneratedAt DateTime?
+  Project           Project        @relation(fields: [projectId], references: [id])
+  ContractRisk      ContractRisk[]
+
+  @@unique([projectId, fileName])
+}
+
+model ContractRisk {
+  id              Int      @id @default(autoincrement())
+  contractId      Int
+  text            String
+  type            String
+  reason          String?
+  articleInfo     String?
+  articleTitle    String?
+  articleOverview String?
+  specificClause  String?
+  pageNumber      Int      @default(1)
+  positionStart   Int      @default(0)
+  positionEnd     Int      @default(0)
+  createdAt       DateTime @default(now())
+  Contract        Contract @relation(fields: [contractId], references: [id])
+}
+
+model Project {
+  id            Int           @id @default(autoincrement())
+  workspaceId   Int
+  name          String
+  description   String
+  createdAt     DateTime      @default(now())
+  targetCompany String?
+  Contract      Contract[]
+  WorkSpace     WorkSpace     @relation(fields: [workspaceId], references: [id])
+  ProjectUser   ProjectUser[]
+}
+
+model ProjectUser {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  Project   Project @relation(fields: [projectId], references: [id])
+  User      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  ProjectUser ProjectUser[]
+}
+
+model WorkSpace {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Project Project[]
+}
