@@ -1,0 +1,43 @@
+steps:
+  # Step 0: Dockerイメージをビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '--platform=linux/amd64'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/dd-ops:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/dd-ops:latest'
+      - '.'
+    timeout: 1200s
+  
+  # Step 1: イメージをプッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/dd-ops:$COMMIT_SHA'
+  
+  # Step 2: Cloud Runにデプロイ、マイグレーションはアプリ起動時に実行
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'dd-ops'
+      - '--image=gcr.io/$PROJECT_ID/dd-ops:$COMMIT_SHA'
+      - '--region=asia-northeast1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=3000'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--timeout=900'
+      - '--max-instances=10'
+      - '--vpc-connector=dd-ops-connector'
+      - '--vpc-egress=private-ranges-only'
+      - '--set-env-vars=NODE_ENV=production,NEXT_PUBLIC_ENV=production,DATABASE_URL=postgresql://postgres:qjFJ8foxA2Qy722mqeweQ@10.1.0.3:5432/dd_ops,NEXT_PUBLIC_API_URL=https://get-file-path-75499681521.asia-northeast1.run.app,NEXT_PUBLIC_FILE_SERVER_URL=https://cdn.dd-ops.net,NEXT_PUBLIC_UPLOAD_APP_URL=https://file-upload-app-75499681521.asia-northeast1.run.app,DOCUMENT_AI_PROCESSOR_URL=https://us-documentai.googleapis.com/v1/projects/1051969327906/locations/us/processors/2c0e6c69f2e8fca4:process,MISTRAL_API_KEY=mZXIQJLUYvynQPwSMIFZjODJXpLlP3oB,GCP_PROJECT_ID=reflected-flux-462908-s6,GCP_LOCATION=us-central1,NEXTAUTH_SECRET=CHANGE-THIS-TO-STRONG-SECRET-IN-PRODUCTION,JWT_SECRET=super-secret-jwt-key-for-production'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 50
+  dynamic_substitutions: true

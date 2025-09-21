@@ -1,0 +1,107 @@
+FROM node:18-alpine AS base
+
+# Alpine LinuxにPrismaに必要な依存関係をインストール
+RUN apk add --no-cache libc6-compat openssl openssl-dev
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN npm install -g pnpm
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+RUN npm install -g pnpm
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# publicディレクトリを作成（存在しない場合）
+RUN mkdir -p ./public
+
+# Generate Prisma client with explicit platform
+RUN pnpm prisma generate
+
+# Set build-time environment variables for Next.js (Staging用のURL)
+ENV NEXT_PUBLIC_API_URL=https://get-file-path-staging-75499681521.asia-east1.run.app
+ENV NEXT_PUBLIC_FILE_SERVER_URL=https://cdn.dd-ops.net
+ENV NEXT_PUBLIC_UPLOAD_APP_URL=https://file-upload-app-staging-75499681521.asia-northeast1.run.app
+ENV NEXT_PUBLIC_ENV=staging
+
+# Set GCP environment variables for build time
+ENV GCP_PROJECT_ID=reflected-flux-462908-s6
+ENV GCP_LOCATION=us-central1
+
+# Build Next.js application
+RUN pnpm build
+
+# Production image - より簡単なアプローチ
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=prodution
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# pnpmとPrisma CLIをグローバルインストール
+RUN npm install -g pnpm prisma
+
+# 本番環境用の依存関係をインストール（Prismaも含める）
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile --prod
+RUN pnpm add prisma @prisma/client
+
+# Prisma Clientを再生成（本番環境用）
+COPY --from=builder /app/prisma ./prisma
+RUN pnpm prisma generate
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# アプリケーションファイルをコピー
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
+
+# package.jsonもコピー（Next.jsの実行に必要）
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# 適切な権限を設定
+RUN chown -R nextjs:nodejs /app
+
+# Create startup script
+RUN printf '#!/bin/sh\n\
+echo "=== STARTING DD-OPS APPLICATION (STAGING) ==="\n\
+echo "PORT: $PORT"\n\
+echo "NODE_ENV: $NODE_ENV"\n\
+echo "DATABASE_URL: ${DATABASE_URL:0:50}..."\n\
+echo "Current directory: $(pwd)"\n\
+echo "Files in directory:"\n\
+ls -la\n\
+echo "Package.json content:"\n\
+cat package.json\n\
+echo "=== DATABASE MIGRATION START ==="\n\
+echo "Checking database connectivity..."\n\
+pnpm prisma migrate deploy || {\n\
+  echo "Migration failed with pnpm, trying npx..."\n\
+  npx prisma migrate deploy || {\n\
+    echo "Migration failed, but continuing startup..."\n\
+    echo "Please check database connectivity and migration files"\n\
+  }\n\
+}\n\
+echo "=== DATABASE MIGRATION END ==="\n\
+echo "Starting Next.js server on port $PORT..."\n\
+echo "Executing: pnpm start"\n\
+exec pnpm start\n' > /app/start.sh
+
+RUN chmod +x /app/start.sh
+RUN chown nextjs:nodejs /app/start.sh
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["sh", "/app/start.sh"]

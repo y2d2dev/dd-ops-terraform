@@ -1,0 +1,145 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-1.1.x", "linux-musl-arm64-openssl-3.0.x", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WorkSpace {
+  id             Int             @id @default(autoincrement())
+  name           String
+  accessable_ips String[]        @default([])
+  projects       Project[]
+  risks          Risk[]
+  workspaceUsers WorkspaceUser[]
+}
+
+model Project {
+  id            Int                      @id @default(autoincrement())
+  workspaceId   Int
+  name          String
+  description   String?
+  createdAt     DateTime                 @default(now())
+  targetCompany String?
+  userId        Int?
+  deletedAt     DateTime?
+  contracts     Contract[]
+  workspace     WorkSpace                @relation(fields: [workspaceId], references: [id])
+  projectUsers  ProjectUser[]
+  user          User?                    @relation(fields: [userId], references: [id])
+  ocrPageCounts OcrPageCount[]
+  extractionStatus ProjectExtractionStatus?
+
+  @@index([deletedAt])
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  projectUsers   ProjectUser[]
+  projects       Project[]
+  workspaceUsers WorkspaceUser[]
+}
+
+model ProjectUser {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  project   Project @relation(fields: [projectId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+model WorkspaceUser {
+  id          Int       @id @default(autoincrement())
+  workspaceId Int
+  userId      Int
+  role        Int       @default(1) // 1: member, 2: admin
+  createdAt   DateTime  @default(now())
+  workspace   WorkSpace @relation(fields: [workspaceId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([workspaceId, userId])
+}
+
+model Contract {
+  id                Int            @id @default(autoincrement())
+  projectId         Int
+  fileName          String
+  baseName          String?
+  title             String?
+  startDate         String?
+  endDate           String?
+  conclusionDate    String?
+  isSave            Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  reportGeneratedAt DateTime?
+  party             String?
+  project           Project        @relation(fields: [projectId], references: [id])
+  contractRisks     ContractRisk[]
+  // removed relation to ProjectExtractionStatus; tracking is project-level with extractionKey
+
+  @@unique([projectId, fileName])
+}
+
+model ContractRisk {
+  id              Int      @id @default(autoincrement())
+  contractId      Int
+  text            String
+  type            String
+  riskId          Int?
+  reason          String?
+  articleInfo     String?
+  articleTitle    String?
+  articleOverview String?
+  specificClause  String?
+  pageNumber      Int      @default(1)
+  positionStart   Int      @default(0)
+  positionEnd     Int      @default(0)
+  isSave          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  contract        Contract @relation(fields: [contractId], references: [id])
+  risk            Risk?    @relation(fields: [riskId], references: [id])
+
+  @@index([riskId])
+}
+
+model Risk {
+  id          Int        @id @default(autoincrement())
+  workspaceId Int?
+  title       String
+  prompt      String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  workspace   WorkSpace? @relation(fields: [workspaceId], references: [id])
+  contractRisks ContractRisk[]
+
+  @@index([workspaceId])
+}
+
+model OcrPageCount {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  pageCount Int
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+}
+
+model ProjectExtractionStatus {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @unique
+  extractionKey String?
+  status    String   @default("pending") // pending, processing, completed, failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id])
+}
