@@ -19,8 +19,11 @@ sub_domain = "terraform-test"  # → terraform-test.dd-ops.net
 # ========================================
 dd_ops_image        = "gcr.io/cloudrun/hello"
 ocr_api_image       = "gcr.io/cloudrun/hello"
-file_upload_image   = "gcr.io/cloudrun/hello"
+file_upload_image   = "gcr.io/spring-firefly-472108-a6/file-upload-app:latest"
 get_file_path_image = "gcr.io/cloudrun/hello"
+
+# Customer configurations disabled for basic testing
+customers = {}
 
 # ========================================
 # Test Environment Settings

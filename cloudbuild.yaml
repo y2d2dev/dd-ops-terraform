@@ -1,0 +1,19 @@
+steps:
+  # File Upload App ビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/${PROJECT_ID}/file-upload-app:latest',
+           '-t', 'gcr.io/${PROJECT_ID}/file-upload-app:${_VERSION}',
+           '--build-arg', 'BUILD_ENV=${_BUILD_ENV}',
+           './apps/file-upload']
+
+  # イメージをプッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', 'gcr.io/${PROJECT_ID}/file-upload-app']
+
+substitutions:
+  _BUILD_ENV: 'production'
+  _VERSION: 'v1.0.0'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'

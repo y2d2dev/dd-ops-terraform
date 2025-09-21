@@ -214,6 +214,16 @@ resource "google_cloud_run_v2_service" "file_upload" {
         value = google_storage_bucket.app_contracts.name
       }
 
+      env {
+        name  = "NODE_ENV"
+        value = "production"
+      }
+
+      env {
+        name  = "NEXT_PUBLIC_OCR_API_URL"
+        value = "https://ocr-pro-test-75499681521.asia-northeast1.run.app"
+      }
+
       resources {
         limits = {
           cpu    = "1"
@@ -226,6 +236,15 @@ resource "google_cloud_run_v2_service" "file_upload" {
       ports {
         container_port = 8080
         name           = "http1"
+      }
+
+      startup_probe {
+        timeout_seconds = 240
+        period_seconds  = 10
+        failure_threshold = 5
+        tcp_socket {
+          port = 8080
+        }
       }
     }
 
@@ -241,6 +260,15 @@ resource "google_cloud_run_v2_service" "file_upload" {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
+}
+
+# Public access for file-upload service
+resource "google_cloud_run_v2_service_iam_member" "file_upload_public" {
+  name     = google_cloud_run_v2_service.file_upload.name
+  location = google_cloud_run_v2_service.file_upload.location
+  project  = google_cloud_run_v2_service.file_upload.project
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 # Get File Path Service

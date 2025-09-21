@@ -3,6 +3,118 @@
 ## 目標
 別のGCPアカウントでも同じ構成を簡単にデプロイできるよう、Terraformコードをポータブルにする。
 
+---
+
+## 🔥 緊急対応: file-upload-app デプロイメント修正作業
+**実行日時**: 2025-09-21 16:00 JST
+
+### 背景
+ユーザーからfile-upload-appが正常にデプロイされていない指摘があり、以下の課題が判明：
+1. gcr.io/cloudrun/hello（テストイメージ）がデプロイされており、実際のアプリケーションが動作していない
+2. 実際のNext.jsアプリケーションに必要な環境変数やビルド設定が不足
+3. Cloud Runでのコンテナ起動に失敗
+
+### 🔧 実行した修正作業
+
+#### ✅ 1. 環境変数の修正 (16:10)
+**問題**: main.tfのfile_uploadサービスにPORT環境変数を設定していたが、Cloud Runでは予約済み変数のため設定不可
+**解決**:
+- PORT環境変数を削除
+- NODE_ENV=production追加
+- NEXT_PUBLIC_OCR_API_URL追加
+
+```hcl
+env {
+  name  = "NODE_ENV"
+  value = "production"
+}
+env {
+  name  = "NEXT_PUBLIC_OCR_API_URL"
+  value = "https://ocr-pro-test-75499681521.asia-northeast1.run.app"
+}
+```
+
+#### ✅ 2. Dockerイメージの再ビルド (16:15)
+**問題**: BUILD_ENV=productionでビルドされていなかった
+**解決**:
+```bash
+cd /Users/naritaharuki/dd-ops-terraform/apps/file-upload
+docker build --build-arg BUILD_ENV=production -t gcr.io/spring-firefly-472108-a6/file-upload-app:latest .
+docker push gcr.io/spring-firefly-472108-a6/file-upload-app:latest
+```
+
+#### ✅ 3. ローカルテストによる動作確認 (16:20)
+**実行内容**: Dockerイメージをローカルで起動テスト
+```bash
+docker run -p 8080:8080 -e NODE_ENV=production -e NEXT_PUBLIC_BUCKET_NAME=app-contracts gcr.io/spring-firefly-472108-a6/file-upload-app:latest
+```
+**結果**: ✅ ローカルでは正常起動確認 (Ready in 108ms, port 8080)
+
+#### ✅ 4. スタートアッププローブの追加 (16:25)
+**問題**: Cloud Runでタイムアウトエラーが発生
+**解決**: main.tfにstartup_probeを追加
+```hcl
+startup_probe {
+  timeout_seconds = 240
+  period_seconds  = 10
+  failure_threshold = 5
+  tcp_socket {
+    port = 8080
+  }
+}
+```
+
+#### 🚨 5. アーキテクチャ問題の発見 (16:30)
+**問題発見**: Cloud Runログで「exec format error」を確認
+```
+terminated: Application failed to start: failed to load /usr/local/bin/docker-entrypoint.sh: exec format error
+```
+**原因**: DockerイメージがCloud Runのアーキテクチャ（ARM64?）と不一致
+**状況**: マルチアーキテクチャビルドが必要だが、現在のDocker環境では対応困難
+
+### 📊 現在の状況
+- ✅ Terraformの設定修正完了
+- ✅ 環境変数の設定修正完了
+- ✅ ローカルでのコンテナ動作確認済み
+- 🚨 Cloud Runでのアーキテクチャ不一致問題（未解決）
+
+#### ✅ 6. 最終解決 - AMD64プラットフォーム指定 (16:40)
+**解決方法**: `--platform linux/amd64`でビルド
+```bash
+docker build --platform linux/amd64 --build-arg BUILD_ENV=production -t gcr.io/spring-firefly-472108-a6/file-upload-app:latest .
+docker push gcr.io/spring-firefly-472108-a6/file-upload-app:latest
+terraform apply -var-file="customers/terraform-test.tfvars" -auto-approve
+```
+**結果**: ✅ **SUCCESS！** file-upload-appがCloud Runで正常起動（42秒後）
+
+### 🎉 最終結果
+- ✅ file-upload-appのCloud Runデプロイ成功
+- ✅ 実際のNext.jsアプリケーションが動作
+- ✅ アーキテクチャ互換性問題解決
+- ✅ 再現可能なデプロイ手順確立
+
+### 📋 再現手順（他のアカウントでも使用可能）
+```bash
+# 1. 認証
+gcloud auth application-default login --no-launch-browser
+gcloud config set project <PROJECT_ID>
+
+# 2. ビルド・プッシュ
+cd apps/file-upload
+docker build --platform linux/amd64 --build-arg BUILD_ENV=production -t gcr.io/<PROJECT_ID>/file-upload-app:latest .
+docker push gcr.io/<PROJECT_ID>/file-upload-app:latest
+
+# 3. デプロイ
+terraform apply -var-file="customers/terraform-test.tfvars" -auto-approve
+```
+
+### 🛠️ Makefile作成
+デプロイプロセスを自動化するMakefileを作成：
+- `make deploy`: 完全デプロイ（認証→ビルド→プッシュ→Terraform）
+- `make build`: Dockerビルドのみ
+- `make destroy`: インフラ削除
+- その他開発用コマンドも含む
+
 ## Phase 1: 変数の抽象化
 
 ### ✅ Step 1: variables.tfのデフォルト値削除 (完了)
@@ -448,3 +560,212 @@ Error 409: Resource 'file-upload-app' already exists
 - **Cloud Run動作確認**: 2つのサービスが正常起動
 
 **現在の状況**: ほぼ成功状態。残り数個の設定ミス修正で完了予定。
+
+---
+
+## 2025年9月21日 - file-upload-app サブモジュール統合とビルド/デプロイ自動化
+
+### 目的
+file-upload-appをサブモジュールとして統合し、ビルドしたイメージを顧客ごとに異なる環境変数で実行する仕組みを構築
+
+### 実施内容
+
+#### 1. サブモジュールの追加
+```bash
+git submodule add git@github.com:y2d2dev/file-upload-app.git apps/file-upload
+```
+
+#### 2. Cloud Build設定の作成
+`cloudbuild.yaml`を作成し、Dockerイメージのビルドパイプラインを設定：
+
+```yaml
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/${PROJECT_ID}/file-upload-app:latest',
+           '-t', 'gcr.io/${PROJECT_ID}/file-upload-app:${_VERSION}',
+           '--build-arg', 'BUILD_ENV=${_BUILD_ENV}',
+           './apps/file-upload']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', 'gcr.io/${PROJECT_ID}/file-upload-app']
+
+substitutions:
+  _BUILD_ENV: 'production'
+  _VERSION: 'v1.0.0'
+```
+
+#### 3. 顧客別設定の実装
+`customer-configs.tf`を作成し、顧客ごとの環境変数オーバーライドを実装：
+
+- 共通のDockerイメージを使用
+- 顧客ごとに異なる環境変数を注入
+- Secret Managerでシークレットを管理
+- 顧客ごとのService Accountを分離
+
+#### 4. 自動更新の仕組み
+`.github/workflows/monthly-update.yml`を作成し、月次自動更新を設定：
+
+- 毎月1日午前3時に自動実行
+- サブモジュールを最新版に更新
+- Dockerイメージをリビルド
+- Terraformを適用して全顧客環境を更新
+
+### 実行手順
+
+#### 1. Cloud Buildでイメージをビルド
+```bash
+gcloud builds submit --config=cloudbuild.yaml --project=reflected-flux-462908-s6
+```
+
+**結果**: ✅ 成功
+- ビルドID: a03a12c9-3b56-4a71-a5df-3af7cb0f2673
+- 所要時間: 3分29秒
+- イメージ: `gcr.io/reflected-flux-462908-s6/file-upload-app:latest`
+- イメージ: `gcr.io/reflected-flux-462908-s6/file-upload-app:v1.0.0`
+
+#### 2. Terraform設定ファイルの作成
+`terraform.tfvars`を作成：
+
+```hcl
+project_id = "reflected-flux-462908-s6"
+region     = "asia-northeast1"
+sub_domain = "demo"
+
+# Container Images
+file_upload_image = "gcr.io/reflected-flux-462908-s6/file-upload-app:latest"
+
+# Customer Configurations
+customers = {
+  "demo-customer" = {
+    enabled      = true
+    environment  = "production"
+    bucket_name  = "demo-customer-contracts"
+    ocr_api_url  = "https://dd-ops-ocr-api-v2-75499681521.asia-northeast1.run.app"
+    jwt_secret   = "demo-secret-key-2024"
+    database_url = "postgresql://demo:password@localhost:5432/demo_app"
+  }
+}
+```
+
+#### 3. Terraformの適用
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+**注意事項**:
+- 認証エラーが発生した場合は`gcloud auth application-default login`を実行
+- `enable_auto_build`がtrueの場合は`github_connection_name`の設定が必要
+
+### アーキテクチャの利点
+
+1. **ソースコード秘匿**: ビルド済みイメージを配布するためソースコードは非公開
+2. **顧客別カスタマイズ**: 環境変数で顧客ごとの設定を上書き
+3. **自動更新**: GitHub Actionsで月次更新を自動化
+4. **セキュリティ**: Secret Managerでシークレットを安全に管理
+5. **スケーラビリティ**: 新規顧客の追加が`customer-configs.tf`への追記のみで可能
+
+### 今後の作業
+
+1. Google Cloud認証を完了
+2. `terraform apply`を実行して実際のデプロイを完了
+3. 各顧客環境のCloud Runサービスが正常に起動していることを確認
+4. 月次自動更新のGitHub Actionsワークフローをテスト
+
+### トラブルシューティング
+
+#### Cloud Buildエラー
+- 初回は`BRANCH_NAME`と`SHORT_SHA`が未定義でエラーになったため、固定値の`_VERSION`に変更
+
+#### Terraform認証エラー
+- `oauth2: "invalid_grant"`エラーが発生した場合は再認証が必要：
+  ```bash
+  gcloud auth application-default login
+  ```
+
+### 関連ファイル
+- `apps/file-upload/` - サブモジュール
+- `cloudbuild.yaml` - ビルド設定
+- `customer-configs.tf` - 顧客別設定
+- `.github/workflows/monthly-update.yml` - 自動更新設定
+- `terraform.tfvars` - Terraform変数設定
+
+---
+
+## 2025年9月21日 - file-upload-appの実際のNext.jsアプリデプロイ
+
+### 問題認識
+テスト環境で`gcr.io/cloudrun/hello`イメージが動いており、「It's running!」ページが表示されている。
+実際の`/Users/naritaharuki/dd-ops-terraform/apps/file-upload`のNext.jsアプリをデプロイする必要がある。
+
+### 実行手順
+
+#### 1. ローカルでDockerイメージをビルド
+```bash
+cd apps/file-upload
+docker build -t file-upload-app:local .
+```
+
+**結果**: ✅ 成功
+- Next.js 15.3.3でビルド完了
+- 本番用の最適化済みビルド生成
+- 所要時間: 約30秒
+
+#### 2. テスト環境のGCRにイメージをプッシュ
+```bash
+docker tag file-upload-app:local gcr.io/spring-firefly-472108-a6/file-upload-app:latest
+docker push gcr.io/spring-firefly-472108-a6/file-upload-app:latest
+```
+
+**結果**: ✅ 成功
+- イメージサイズ: 3035 bytes (manifest)
+- digest: sha256:4c7734793f81ae366046f88ee55aa56c8563d89cbae805e151c648a0b8a0ebfd
+
+#### 3. terraform-test.tfvarsを更新
+```hcl
+# 変更前
+file_upload_image = "gcr.io/cloudrun/hello"
+
+# 変更後
+file_upload_image = "gcr.io/spring-firefly-472108-a6/file-upload-app:latest"
+```
+
+#### 4. Terraformで実際のアプリをデプロイ
+```bash
+terraform apply -var-file="customers/terraform-test.tfvars" -target=google_cloud_run_v2_service.file_upload -auto-approve
+```
+
+**結果**: ❌ 失敗
+**エラー**: `The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout`
+
+### 問題分析
+- Next.jsアプリがポート8080で起動していない
+- タイムアウト内にヘルスチェックに応答していない
+- Cloud Runログの確認が必要
+
+### 次のステップ
+1. Cloud Runログを確認して具体的なエラーを特定
+2. Dockerfileのポート設定を確認
+3. 環境変数の設定を調整
+4. 必要に応じてヘルスチェック設定を調整
+
+### 現在の状況
+- **file-upload-app**: エラー状態（起動失敗）
+- **イメージ**: 正常にビルド・プッシュ済み
+- **Terraform設定**: 更新済み
+
+#### 5. 問題の原因を特定
+`/Users/naritaharuki/file-upload-app/cloudbuild-production.yaml`を確認した結果、重要な`BUILD_ENV=production`引数が不足していることが判明。
+
+本番ビルドには以下が必要：
+```bash
+docker build --build-arg BUILD_ENV=production -t file-upload-app:local .
+```
+
+**本来の正しいビルド手順**:
+```yaml
+- '--build-arg'
+- 'BUILD_ENV=production'
+- '--set-env-vars=NEXT_PUBLIC_BUCKET_NAME=app_contracts'
+- '--set-env-vars=GOOGLE_CLOUD_STORAGE_BUCKET=app_contracts'
+```

@@ -1,0 +1,3 @@
+[submodule "apps/file-upload"]
+	path = apps/file-upload
+	url = git@github.com:y2d2dev/file-upload-app.git

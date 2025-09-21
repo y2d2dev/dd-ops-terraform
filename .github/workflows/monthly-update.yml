@@ -1,0 +1,81 @@
+name: Monthly Update and Deploy
+
+on:
+  schedule:
+    # 毎月1日の午前3時に実行
+    - cron: '0 3 1 * *'
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update submodules to latest
+      run: |
+        git submodule update --remote --merge
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+
+        # 変更があればコミット
+        if [[ -n $(git status --porcelain) ]]; then
+          git add .
+          git commit -m "chore: update file-upload-app to latest version [skip ci]"
+          git push
+        fi
+
+    - name: Setup GCP credentials
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Build and push Docker image
+      run: |
+        gcloud builds submit \
+          --config=cloudbuild.yaml \
+          --substitutions=_BUILD_ENV=production \
+          --project=${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.7
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Apply
+      run: |
+        terraform apply \
+          -auto-approve \
+          -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+          -var="region=${{ secrets.GCP_REGION }}"
+
+    - name: Send notification
+      if: always()
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "Monthly update status: ${{ job.status }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Monthly Update Result*\n Status: ${{ job.status }}\n Repository: ${{ github.repository }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
