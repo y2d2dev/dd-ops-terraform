@@ -18,13 +18,13 @@ locals {
   domains      = [local.full_domain, local.www_domain]
   cors_origins = ["https://${local.full_domain}"]
 
-  # Dynamic container image paths
-  # Currently uses variables, but will be enhanced to use Artifact Registry references
+  # Dynamic container image paths - 自動生成
+  # プロジェクトIDから自動的にイメージパスを生成（顧客ごとの手動設定不要）
   container_images = {
-    dd_ops        = var.dd_ops_image
-    ocr_api       = var.ocr_api_image
-    file_upload   = var.file_upload_image
-    get_file_path = var.get_file_path_image
+    dd_ops        = var.dd_ops_image != "" ? var.dd_ops_image : "gcr.io/${var.project_id}/dd-ops:latest"
+    ocr_api       = var.ocr_api_image != "" ? var.ocr_api_image : "gcr.io/cloudrun/hello"  # テスト用
+    file_upload   = var.file_upload_image != "" ? var.file_upload_image : "gcr.io/${var.project_id}/file-upload-app:latest"
+    get_file_path = var.get_file_path_image != "" ? var.get_file_path_image : "gcr.io/cloudrun/hello"  # テスト用
   }
 }
 
@@ -88,8 +88,8 @@ resource "google_cloud_run_v2_service" "dd_ops" {
   project  = var.project_id
 
   depends_on = [
-    google_project_iam_member.dd_ops_permissions,
-    google_secret_manager_secret.database_url
+    google_project_iam_member.dd_ops_permissions
+    # google_secret_manager_secret_version.database_url  # Temporarily commented out
   ]
 
   template {
@@ -132,12 +132,30 @@ resource "google_cloud_run_v2_service" "dd_ops" {
     }
 
     service_account = google_service_account.dd_ops_sa.email
+
+    vpc_access {
+      egress = "PRIVATE_RANGES_ONLY"
+
+      network_interfaces {
+        network    = google_compute_network.main_vpc.name
+        subnetwork = google_compute_subnetwork.main_subnet.name
+      }
+    }
   }
 
   traffic {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
+}
+
+# Public access for dd-ops service
+resource "google_cloud_run_v2_service_iam_member" "dd_ops_public" {
+  name     = google_cloud_run_v2_service.dd_ops.name
+  location = google_cloud_run_v2_service.dd_ops.location
+  project  = google_cloud_run_v2_service.dd_ops.project
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 # OCR API Service
@@ -192,6 +210,15 @@ resource "google_cloud_run_v2_service" "ocr_api" {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
+}
+
+# Public access for OCR API service
+resource "google_cloud_run_v2_service_iam_member" "ocr_api_public" {
+  name     = google_cloud_run_v2_service.ocr_api.name
+  location = google_cloud_run_v2_service.ocr_api.location
+  project  = google_cloud_run_v2_service.ocr_api.project
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 # File Upload Service
@@ -319,6 +346,15 @@ resource "google_cloud_run_v2_service" "get_file_path" {
   }
 }
 
+# Public access for get-file-path service
+resource "google_cloud_run_v2_service_iam_member" "get_file_path_public" {
+  name     = google_cloud_run_v2_service.get_file_path.name
+  location = google_cloud_run_v2_service.get_file_path.location
+  project  = google_cloud_run_v2_service.get_file_path.project
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
 # ========================================
 # Cloud SQL Instance
 # ========================================
@@ -330,6 +366,11 @@ resource "google_sql_database_instance" "main" {
   project          = var.project_id
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
+
+  # スキップ競合エラーを回避
+  lifecycle {
+    ignore_changes = [name]
+  }
 
   settings {
     tier              = var.db_tier
@@ -383,12 +424,7 @@ resource "google_sql_database" "main" {
   project  = var.project_id
 }
 
-resource "google_sql_user" "app_user" {
-  name     = "dd_ops_user"
-  instance = google_sql_database_instance.main.name
-  password = random_password.db_password.result
-  project  = var.project_id
-}
+# Using postgres user directly - has all necessary permissions
 
 # ========================================
 # Storage Buckets
@@ -554,17 +590,15 @@ resource "google_secret_manager_secret_version" "database_url" {
   secret = google_secret_manager_secret.database_url.id
 
   secret_data = format(
-    "postgresql://%s:%s@%s:5432/%s",
-    google_sql_user.app_user.name,
+    "postgresql://postgres:%s@%s:5432/dd_ops",
     random_password.db_password.result,
-    google_sql_database_instance.main.private_ip_address,
-    google_sql_database.main.name
+    google_sql_database_instance.main.private_ip_address
   )
 
   lifecycle {
+    ignore_changes = [secret_data]
     replace_triggered_by = [
       google_sql_database_instance.main,
-      google_sql_user.app_user,
       random_password.db_password
     ]
   }
@@ -727,4 +761,6 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
 resource "random_password" "db_password" {
   length  = 32
   special = true
+  # Exclude URL unsafe characters that cause parsing issues
+  override_special = "-_=+"
 }

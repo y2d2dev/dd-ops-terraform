@@ -10,8 +10,10 @@
 
 # 設定変数
 PROJECT_ID := spring-firefly-472108-a6
-IMAGE_NAME := gcr.io/$(PROJECT_ID)/file-upload-app:latest
-APP_DIR := apps/file-upload
+FILE_UPLOAD_IMAGE := gcr.io/$(PROJECT_ID)/file-upload-app:latest
+DD_OPS_IMAGE := gcr.io/$(PROJECT_ID)/dd-ops:latest
+FILE_UPLOAD_DIR := apps/file-upload
+DD_OPS_DIR := apps/dd-ops
 TFVARS_FILE := customers/terraform-test.tfvars
 
 .PHONY: deploy build push terraform destroy auth help
@@ -29,8 +31,9 @@ help: ## このヘルプメッセージを表示
 deploy: auth build push terraform ## 完全なデプロイメント（認証→ビルド→プッシュ→Terraform適用）
 	@echo "✅ デプロイメント完了！"
 	@echo "📋 デプロイされたサービス:"
-	@echo "  - file-upload-app: 実際のNext.jsアプリケーション"
-	@echo "  - dd_ops, ocr_api, get_file_path: テストイメージ（gcr.io/cloudrun/hello）"
+	@echo "  - file-upload-app: 実際のNext.jsファイルアップロードアプリ"
+	@echo "  - dd-ops: 実際のNext.js法務DDアプリ"
+	@echo "  - ocr_api, get_file_path: テストイメージ（gcr.io/cloudrun/hello）"
 
 # GCP認証設定
 auth: ## GCP認証設定
@@ -39,22 +42,46 @@ auth: ## GCP認証設定
 	@echo "✅ 認証スキップ（既存の認証を使用）"
 
 # Dockerイメージビルド
-build: ## Dockerイメージをビルド（AMD64プラットフォーム）
-	@echo "🔨 Dockerイメージをビルド中..."
-	@cd $(APP_DIR) && docker build \
+build: build-file-upload build-dd-ops ## 全Dockerイメージをビルド（AMD64プラットフォーム）
+
+build-file-upload: ## file-upload-appイメージをビルド
+	@echo "🔨 file-upload-appイメージをビルド中..."
+	@cd $(FILE_UPLOAD_DIR) && docker build \
 		--platform linux/amd64 \
 		--build-arg BUILD_ENV=production \
-		-t $(IMAGE_NAME) .
-	@echo "✅ ビルド完了"
+		-t $(FILE_UPLOAD_IMAGE) .
+	@echo "✅ file-upload-appビルド完了"
+
+build-dd-ops: ## dd-opsイメージをビルド
+	@echo "🔨 dd-opsイメージをビルド中..."
+	@cd $(DD_OPS_DIR) && docker build \
+		--platform linux/amd64 \
+		-t $(DD_OPS_IMAGE) .
+	@echo "✅ dd-opsビルド完了"
 
 # Dockerイメージプッシュ
-push: ## DockerイメージをGoogle Container Registryにプッシュ
-	@echo "📤 Dockerイメージをプッシュ中..."
-	@docker push $(IMAGE_NAME)
-	@echo "✅ プッシュ完了"
+push: push-file-upload push-dd-ops ## 全DockerイメージをGoogle Container Registryにプッシュ
+
+push-file-upload: ## file-upload-appイメージをプッシュ
+	@echo "📤 file-upload-appイメージをプッシュ中..."
+	@docker push $(FILE_UPLOAD_IMAGE)
+	@echo "✅ file-upload-appプッシュ完了"
+
+push-dd-ops: ## dd-opsイメージをプッシュ
+	@echo "📤 dd-opsイメージをプッシュ中..."
+	@docker push $(DD_OPS_IMAGE)
+	@echo "✅ dd-opsプッシュ完了"
 
 # Terraform適用
-terraform: ## Terraformを適用してインフラをデプロイ
+terraform: terraform-import terraform-apply ## Terraformを適用してインフラをデプロイ
+
+terraform-import: ## 既存リソースをTerraformにimport
+	@echo "📥 既存リソースをimport中..."
+	@-terraform import -var-file="$(TFVARS_FILE)" google_sql_database_instance.main projects/$(PROJECT_ID)/instances/dd-ops-db 2>/dev/null || echo "  ℹ️  Cloud SQLインスタンスは既にimport済みまたは存在しません"
+	@-terraform import -var-file="$(TFVARS_FILE)" google_secret_manager_secret.database_url projects/$(PROJECT_ID)/secrets/database-url 2>/dev/null || echo "  ℹ️  Secret Managerは既にimport済みまたは存在しません"
+	@echo "✅ Import処理完了"
+
+terraform-apply: ## Terraformを適用
 	@echo "🏗️  Terraformを適用中..."
 	@terraform apply -var-file="$(TFVARS_FILE)" -auto-approve
 	@echo "✅ Terraform適用完了"

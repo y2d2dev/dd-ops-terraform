@@ -1,0 +1,450 @@
+[0m[1mrandom_password.db_password: Refreshing state... [id=none][0m
+[0m[1mgoogle_service_account.storage_url_signer: Refreshing state... [id=projects/spring-firefly-472108-a6/serviceAccounts/storage-url-signer@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_compute_managed_ssl_certificate.main: Refreshing state... [id=projects/spring-firefly-472108-a6/global/sslCertificates/dev-ssl-cert][0m
+[0m[1mgoogle_storage_bucket.dd_ops_models: Refreshing state... [id=dd-ops-models][0m
+[0m[1mgoogle_artifact_registry_repository.base_images: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/repositories/base-images][0m
+[0m[1mgoogle_artifact_registry_repository.app_images: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/repositories/app-images][0m
+[0m[1mgoogle_secret_manager_secret.database_url: Refreshing state... [id=projects/spring-firefly-472108-a6/secrets/database-url][0m
+[0m[1mgoogle_pubsub_topic.ocr: Refreshing state... [id=projects/spring-firefly-472108-a6/topics/ocr-dev][0m
+[0m[1mgoogle_monitoring_alert_policy.high_error_rate: Refreshing state... [id=projects/spring-firefly-472108-a6/alertPolicies/3778682863693499448][0m
+[0m[1mdata.google_project.main: Reading...[0m[0m
+[0m[1mgoogle_storage_bucket.terraform_state: Refreshing state... [id=spring-firefly-472108-a6-terraform-state-dev][0m
+[0m[1mgoogle_pubsub_topic.ocr_dlq: Refreshing state... [id=projects/spring-firefly-472108-a6/topics/ocr-dev-dlq][0m
+[0m[1mgoogle_project_service.cloud_build_api: Refreshing state... [id=spring-firefly-472108-a6/cloudbuild.googleapis.com][0m
+[0m[1mgoogle_service_account.dd_ops_sa: Refreshing state... [id=projects/spring-firefly-472108-a6/serviceAccounts/dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_compute_health_check.http: Refreshing state... [id=projects/spring-firefly-472108-a6/global/healthChecks/http-health-check-dev][0m
+[0m[1mgoogle_compute_network.main_vpc: Refreshing state... [id=projects/spring-firefly-472108-a6/global/networks/dev-vpc][0m
+[0m[1mgoogle_service_account.file_upload_sa: Refreshing state... [id=projects/spring-firefly-472108-a6/serviceAccounts/file-upload@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_storage_bucket.app_contracts: Refreshing state... [id=app-contracts][0m
+[0m[1mgoogle_pubsub_subscription.ocr: Refreshing state... [id=projects/spring-firefly-472108-a6/subscriptions/ocr-subscription-dev][0m
+[0m[1mgoogle_compute_backend_bucket.app_contracts_backend: Refreshing state... [id=projects/spring-firefly-472108-a6/global/backendBuckets/app-contracts-backend][0m
+[0m[1mgoogle_compute_global_address.private_ip_peering: Refreshing state... [id=projects/spring-firefly-472108-a6/global/addresses/dev-private-ip-peering][0m
+[0m[1mgoogle_compute_subnetwork.main_subnet: Refreshing state... [id=projects/spring-firefly-472108-a6/regions/asia-northeast1/subnetworks/dev-subnet][0m
+[0m[1mgoogle_storage_bucket_iam_member.url_signer_access: Refreshing state... [id=b/app-contracts/roles/storage.objectAdmin/serviceAccount:storage-url-signer@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/logging.logWriter"]: Refreshing state... [id=spring-firefly-472108-a6/roles/logging.logWriter/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/storage.objectCreator"]: Refreshing state... [id=spring-firefly-472108-a6/roles/storage.objectCreator/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_cloud_run_v2_service.ocr_api: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops-ocr-api-v2][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/monitoring.metricWriter"]: Refreshing state... [id=spring-firefly-472108-a6/roles/monitoring.metricWriter/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/storage.objectViewer"]: Refreshing state... [id=spring-firefly-472108-a6/roles/storage.objectViewer/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/cloudsql.client"]: Refreshing state... [id=spring-firefly-472108-a6/roles/cloudsql.client/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.dd_ops_permissions["roles/secretmanager.secretAccessor"]: Refreshing state... [id=spring-firefly-472108-a6/roles/secretmanager.secretAccessor/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_cloud_run_v2_service.get_file_path: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/get-file-path][0m
+[0m[1mgoogle_service_networking_connection.private_vpc_connection: Refreshing state... [id=projects%2Fspring-firefly-472108-a6%2Fglobal%2Fnetworks%2Fdev-vpc:servicenetworking.googleapis.com][0m
+[0m[1mgoogle_cloud_run_v2_service.file_upload: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/file-upload-app][0m
+[0m[1mgoogle_project_iam_member.file_upload_permissions["roles/storage.objectAdmin"]: Refreshing state... [id=spring-firefly-472108-a6/roles/storage.objectAdmin/serviceAccount:file-upload@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.file_upload_permissions["roles/logging.logWriter"]: Refreshing state... [id=spring-firefly-472108-a6/roles/logging.logWriter/serviceAccount:file-upload@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_artifact_registry_repository_iam_member.cloud_run_reader["file_upload"]: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/repositories/app-images/roles/artifactregistry.reader/serviceAccount:file-upload@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mdata.google_project.main: Read complete after 2s [id=projects/spring-firefly-472108-a6][0m
+[0m[1mgoogle_artifact_registry_repository_iam_member.cloud_run_reader["dd_ops"]: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/repositories/app-images/roles/artifactregistry.reader/serviceAccount:dd-ops@spring-firefly-472108-a6.iam.gserviceaccount.com][0m
+[0m[1mgoogle_cloud_run_v2_service_iam_member.file_upload_public: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/file-upload-app/roles/run.invoker/allUsers][0m
+[0m[1mgoogle_project_iam_member.cloud_build_service_account_user: Refreshing state... [id=spring-firefly-472108-a6/roles/iam.serviceAccountUser/serviceAccount:18562796135@cloudbuild.gserviceaccount.com][0m
+[0m[1mgoogle_artifact_registry_repository_iam_member.cloud_build_writer: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/repositories/app-images/roles/artifactregistry.writer/serviceAccount:18562796135@cloudbuild.gserviceaccount.com][0m
+[0m[1mgoogle_project_iam_member.cloud_build_cloud_run_developer: Refreshing state... [id=spring-firefly-472108-a6/roles/run.developer/serviceAccount:18562796135@cloudbuild.gserviceaccount.com][0m
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Refreshing state... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+[31m-[0m/[32m+[0m destroy and then create replacement[0m
+
+Terraform will perform the following actions:
+
+[1m  # google_cloud_run_v2_service.dd_ops[0m is tainted, so must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "google_cloud_run_v2_service" "dd_ops" {
+      [31m-[0m[0m annotations             = {} [90m-> null[0m[0m
+      [33m~[0m[0m conditions              = [
+          [31m-[0m[0m {
+              [31m-[0m[0m last_transition_time = "2025-09-23T00:43:51.176143Z"
+              [31m-[0m[0m message              = "Revision 'dd-ops-00001-wn7' is not ready and cannot serve traffic. spec.template.spec.containers[0].env[1].value_from.secret_key_ref.name: Secret projects/spring-firefly-472108-a6/secrets/database-url/versions/latest was not found"
+              [31m-[0m[0m reason               = "SECRETS_ACCESS_CHECK_FAILED"
+              [31m-[0m[0m state                = "CONDITION_FAILED"
+              [31m-[0m[0m type                 = "RoutesReady"
+                [90m# (3 unchanged attributes hidden)[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m last_transition_time = "2025-09-23T00:43:51.165276Z"
+              [31m-[0m[0m message              = "spec.template.spec.containers[0].env[1].value_from.secret_key_ref.name: Secret projects/spring-firefly-472108-a6/secrets/database-url/versions/latest was not found"
+              [31m-[0m[0m state                = "CONDITION_SUCCEEDED"
+              [31m-[0m[0m type                 = "ConfigurationsReady"
+                [90m# (4 unchanged attributes hidden)[0m[0m
+            },
+        ] -> (known after apply)
+      [33m~[0m[0m create_time             = "2025-09-23T00:43:48.284427Z" -> (known after apply)
+      [33m~[0m[0m creator                 = "dev@y2-d2.com" -> (known after apply)
+      [31m-[0m[0m custom_audiences        = [] [90m-> null[0m[0m
+      [32m+[0m[0m delete_time             = (known after apply)
+      [33m~[0m[0m effective_annotations   = {} -> (known after apply)
+      [33m~[0m[0m effective_labels        = {} -> (known after apply)
+      [33m~[0m[0m etag                    = "\"CMTax8YGEPiF0IcB/cHJvamVjdHMvc3ByaW5nLWZpcmVmbHktNDcyMTA4LWE2L2xvY2F0aW9ucy9hc2lhLW5vcnRoZWFzdDEvc2VydmljZXMvZGQtb3Bz\"" -> (known after apply)
+      [32m+[0m[0m expire_time             = (known after apply)
+      [33m~[0m[0m generation              = "1" -> (known after apply)
+      [33m~[0m[0m id                      = "projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops" -> (known after apply)
+      [33m~[0m[0m ingress                 = "INGRESS_TRAFFIC_ALL" -> (known after apply)
+      [31m-[0m[0m labels                  = {} [90m-> null[0m[0m
+      [33m~[0m[0m last_modifier           = "dev@y2-d2.com" -> (known after apply)
+      [33m~[0m[0m latest_created_revision = "projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops/revisions/dd-ops-00001-wn7" -> (known after apply)
+      [32m+[0m[0m latest_ready_revision   = (known after apply)
+      [33m~[0m[0m launch_stage            = "GA" -> (known after apply)
+        name                    = "dd-ops"
+      [33m~[0m[0m observed_generation     = "1" -> (known after apply)
+      [33m~[0m[0m reconciling             = false -> (known after apply)
+      [33m~[0m[0m terminal_condition      = [
+          [31m-[0m[0m {
+              [31m-[0m[0m last_transition_time = "2025-09-23T00:43:51.176143Z"
+              [31m-[0m[0m message              = "Revision 'dd-ops-00001-wn7' is not ready and cannot serve traffic. spec.template.spec.containers[0].env[1].value_from.secret_key_ref.name: Secret projects/spring-firefly-472108-a6/secrets/database-url/versions/latest was not found"
+              [31m-[0m[0m reason               = "SECRETS_ACCESS_CHECK_FAILED"
+              [31m-[0m[0m state                = "CONDITION_FAILED"
+              [31m-[0m[0m type                 = "Ready"
+                [90m# (3 unchanged attributes hidden)[0m[0m
+            },
+        ] -> (known after apply)
+      [33m~[0m[0m terraform_labels        = {} -> (known after apply)
+      [33m~[0m[0m traffic_statuses        = [] -> (known after apply)
+      [33m~[0m[0m uid                     = "8742f353-64c0-4b71-a281-391c7a52a550" -> (known after apply)
+      [33m~[0m[0m update_time             = "2025-09-23T00:43:48.284427Z" -> (known after apply)
+      [32m+[0m[0m uri                     = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+
+      [33m~[0m[0m template {
+          [31m-[0m[0m annotations                      = {} [90m-> null[0m[0m
+          [31m-[0m[0m labels                           = {} [90m-> null[0m[0m
+          [33m~[0m[0m max_instance_request_concurrency = 160 -> (known after apply)
+          [31m-[0m[0m session_affinity                 = false [90m-> null[0m[0m
+          [33m~[0m[0m timeout                          = "300s" -> (known after apply)
+            [90m# (4 unchanged attributes hidden)[0m[0m
+
+          [33m~[0m[0m containers {
+              [31m-[0m[0m args        = [] [90m-> null[0m[0m
+              [31m-[0m[0m command     = [] [90m-> null[0m[0m
+              [31m-[0m[0m depends_on  = [] [90m-> null[0m[0m
+                name        = [90mnull[0m[0m
+                [90m# (2 unchanged attributes hidden)[0m[0m
+
+              [33m~[0m[0m liveness_probe (known after apply)
+
+              [33m~[0m[0m startup_probe (known after apply)
+              [31m-[0m[0m startup_probe {
+                  [31m-[0m[0m failure_threshold     = 1 [90m-> null[0m[0m
+                  [31m-[0m[0m initial_delay_seconds = 0 [90m-> null[0m[0m
+                  [31m-[0m[0m period_seconds        = 240 [90m-> null[0m[0m
+                  [31m-[0m[0m timeout_seconds       = 240 [90m-> null[0m[0m
+
+                  [31m-[0m[0m tcp_socket {
+                      [31m-[0m[0m port = 8080 [90m-> null[0m[0m
+                    }
+                }
+
+                [90m# (4 unchanged blocks hidden)[0m[0m
+            }
+
+            [90m# (1 unchanged block hidden)[0m[0m
+        }
+
+        [90m# (1 unchanged block hidden)[0m[0m
+    }
+
+[1m  # google_cloud_run_v2_service_iam_member.dd_ops_public[0m will be created
+[0m  [32m+[0m[0m resource "google_cloud_run_v2_service_iam_member" "dd_ops_public" {
+      [32m+[0m[0m etag     = (known after apply)
+      [32m+[0m[0m id       = (known after apply)
+      [32m+[0m[0m location = "asia-northeast1"
+      [32m+[0m[0m member   = "allUsers"
+      [32m+[0m[0m name     = "dd-ops"
+      [32m+[0m[0m project  = "spring-firefly-472108-a6"
+      [32m+[0m[0m role     = "roles/run.invoker"
+    }
+
+[1m  # google_compute_backend_service.dd_ops_backend[0m will be created
+[0m  [32m+[0m[0m resource "google_compute_backend_service" "dd_ops_backend" {
+      [32m+[0m[0m connection_draining_timeout_sec = 300
+      [32m+[0m[0m creation_timestamp              = (known after apply)
+      [32m+[0m[0m fingerprint                     = (known after apply)
+      [32m+[0m[0m generated_id                    = (known after apply)
+      [32m+[0m[0m id                              = (known after apply)
+      [32m+[0m[0m load_balancing_scheme           = "EXTERNAL"
+      [32m+[0m[0m name                            = "dd-ops-backend-dev"
+      [32m+[0m[0m port_name                       = "http"
+      [32m+[0m[0m project                         = "spring-firefly-472108-a6"
+      [32m+[0m[0m protocol                        = "HTTP"
+      [32m+[0m[0m self_link                       = (known after apply)
+      [32m+[0m[0m session_affinity                = (known after apply)
+      [32m+[0m[0m timeout_sec                     = 30
+
+      [32m+[0m[0m backend {
+          [32m+[0m[0m balancing_mode               = "UTILIZATION"
+          [32m+[0m[0m capacity_scaler              = 1
+          [32m+[0m[0m group                        = (known after apply)
+          [32m+[0m[0m max_connections              = (known after apply)
+          [32m+[0m[0m max_connections_per_endpoint = (known after apply)
+          [32m+[0m[0m max_connections_per_instance = (known after apply)
+          [32m+[0m[0m max_rate                     = (known after apply)
+          [32m+[0m[0m max_rate_per_endpoint        = (known after apply)
+          [32m+[0m[0m max_rate_per_instance        = (known after apply)
+          [32m+[0m[0m max_utilization              = (known after apply)
+            [90m# (1 unchanged attribute hidden)[0m[0m
+        }
+
+      [32m+[0m[0m cdn_policy (known after apply)
+
+      [32m+[0m[0m log_config (known after apply)
+    }
+
+[1m  # google_compute_global_forwarding_rule.main[0m will be created
+[0m  [32m+[0m[0m resource "google_compute_global_forwarding_rule" "main" {
+      [32m+[0m[0m base_forwarding_rule  = (known after apply)
+      [32m+[0m[0m effective_labels      = (known after apply)
+      [32m+[0m[0m id                    = (known after apply)
+      [32m+[0m[0m ip_address            = (known after apply)
+      [32m+[0m[0m ip_protocol           = (known after apply)
+      [32m+[0m[0m label_fingerprint     = (known after apply)
+      [32m+[0m[0m load_balancing_scheme = "EXTERNAL"
+      [32m+[0m[0m name                  = "dev-forwarding-rule"
+      [32m+[0m[0m network               = (known after apply)
+      [32m+[0m[0m port_range            = "443"
+      [32m+[0m[0m project               = "spring-firefly-472108-a6"
+      [32m+[0m[0m psc_connection_id     = (known after apply)
+      [32m+[0m[0m psc_connection_status = (known after apply)
+      [32m+[0m[0m self_link             = (known after apply)
+      [32m+[0m[0m subnetwork            = (known after apply)
+      [32m+[0m[0m target                = (known after apply)
+      [32m+[0m[0m terraform_labels      = (known after apply)
+
+      [32m+[0m[0m service_directory_registrations (known after apply)
+    }
+
+[1m  # google_compute_region_network_endpoint_group.dd_ops_neg[0m will be created
+[0m  [32m+[0m[0m resource "google_compute_region_network_endpoint_group" "dd_ops_neg" {
+      [32m+[0m[0m id                    = (known after apply)
+      [32m+[0m[0m name                  = "dd-ops-neg-dev"
+      [32m+[0m[0m network_endpoint_type = "SERVERLESS"
+      [32m+[0m[0m project               = "spring-firefly-472108-a6"
+      [32m+[0m[0m region                = "asia-northeast1"
+      [32m+[0m[0m self_link             = (known after apply)
+
+      [32m+[0m[0m cloud_run {
+          [32m+[0m[0m service = "dd-ops"
+        }
+    }
+
+[1m  # google_compute_target_https_proxy.main[0m will be created
+[0m  [32m+[0m[0m resource "google_compute_target_https_proxy" "main" {
+      [32m+[0m[0m creation_timestamp = (known after apply)
+      [32m+[0m[0m id                 = (known after apply)
+      [32m+[0m[0m name               = "dev-https-proxy"
+      [32m+[0m[0m project            = "spring-firefly-472108-a6"
+      [32m+[0m[0m proxy_bind         = (known after apply)
+      [32m+[0m[0m proxy_id           = (known after apply)
+      [32m+[0m[0m quic_override      = "NONE"
+      [32m+[0m[0m self_link          = (known after apply)
+      [32m+[0m[0m ssl_certificates   = [
+          [32m+[0m[0m "projects/spring-firefly-472108-a6/global/sslCertificates/dev-ssl-cert",
+        ]
+      [32m+[0m[0m tls_early_data     = (known after apply)
+      [32m+[0m[0m url_map            = (known after apply)
+    }
+
+[1m  # google_compute_url_map.main[0m will be created
+[0m  [32m+[0m[0m resource "google_compute_url_map" "main" {
+      [32m+[0m[0m creation_timestamp = (known after apply)
+      [32m+[0m[0m default_service    = "projects/spring-firefly-472108-a6/global/backendBuckets/app-contracts-backend"
+      [32m+[0m[0m fingerprint        = (known after apply)
+      [32m+[0m[0m id                 = (known after apply)
+      [32m+[0m[0m map_id             = (known after apply)
+      [32m+[0m[0m name               = "dev-lb"
+      [32m+[0m[0m project            = "spring-firefly-472108-a6"
+      [32m+[0m[0m self_link          = (known after apply)
+
+      [32m+[0m[0m host_rule {
+          [32m+[0m[0m hosts        = [
+              [32m+[0m[0m "terraform-test.dd-ops.net",
+              [32m+[0m[0m "www.terraform-test.dd-ops.net",
+            ]
+          [32m+[0m[0m path_matcher = "main-paths"
+            [90m# (1 unchanged attribute hidden)[0m[0m
+        }
+
+      [32m+[0m[0m path_matcher {
+          [32m+[0m[0m default_service = "projects/spring-firefly-472108-a6/global/backendBuckets/app-contracts-backend"
+          [32m+[0m[0m name            = "main-paths"
+
+          [32m+[0m[0m path_rule {
+              [32m+[0m[0m paths   = [
+                  [32m+[0m[0m "/api/*",
+                ]
+              [32m+[0m[0m service = (known after apply)
+            }
+          [32m+[0m[0m path_rule {
+              [32m+[0m[0m paths   = [
+                  [32m+[0m[0m "/pdf/*",
+                ]
+              [32m+[0m[0m service = "projects/spring-firefly-472108-a6/global/backendBuckets/app-contracts-backend"
+            }
+        }
+    }
+
+[1m  # google_secret_manager_secret_version.database_url[0m will be created
+[0m  [32m+[0m[0m resource "google_secret_manager_secret_version" "database_url" {
+      [32m+[0m[0m create_time           = (known after apply)
+      [32m+[0m[0m deletion_policy       = "DELETE"
+      [32m+[0m[0m destroy_time          = (known after apply)
+      [32m+[0m[0m enabled               = true
+      [32m+[0m[0m id                    = (known after apply)
+      [32m+[0m[0m is_secret_data_base64 = false
+      [32m+[0m[0m name                  = (known after apply)
+      [32m+[0m[0m secret                = "projects/spring-firefly-472108-a6/secrets/database-url"
+      [32m+[0m[0m secret_data           = (sensitive value)
+      [32m+[0m[0m version               = (known after apply)
+    }
+
+[1m  # google_sql_database.main[0m will be created
+[0m  [32m+[0m[0m resource "google_sql_database" "main" {
+      [32m+[0m[0m charset         = (known after apply)
+      [32m+[0m[0m collation       = (known after apply)
+      [32m+[0m[0m deletion_policy = "DELETE"
+      [32m+[0m[0m id              = (known after apply)
+      [32m+[0m[0m instance        = "dd-ops-db"
+      [32m+[0m[0m name            = "dd_ops"
+      [32m+[0m[0m project         = "spring-firefly-472108-a6"
+      [32m+[0m[0m self_link       = (known after apply)
+    }
+
+[1m  # google_sql_database_instance.main[0m will be created
+[0m  [32m+[0m[0m resource "google_sql_database_instance" "main" {
+      [32m+[0m[0m available_maintenance_versions = (known after apply)
+      [32m+[0m[0m connection_name                = (known after apply)
+      [32m+[0m[0m database_version               = "POSTGRES_15"
+      [32m+[0m[0m deletion_protection            = false
+      [32m+[0m[0m dns_name                       = (known after apply)
+      [32m+[0m[0m encryption_key_name            = (known after apply)
+      [32m+[0m[0m first_ip_address               = (known after apply)
+      [32m+[0m[0m id                             = (known after apply)
+      [32m+[0m[0m instance_type                  = (known after apply)
+      [32m+[0m[0m ip_address                     = (known after apply)
+      [32m+[0m[0m maintenance_version            = (known after apply)
+      [32m+[0m[0m master_instance_name           = (known after apply)
+      [32m+[0m[0m name                           = "dd-ops-db"
+      [32m+[0m[0m private_ip_address             = (known after apply)
+      [32m+[0m[0m project                        = "spring-firefly-472108-a6"
+      [32m+[0m[0m psc_service_attachment_link    = (known after apply)
+      [32m+[0m[0m public_ip_address              = (known after apply)
+      [32m+[0m[0m region                         = "asia-northeast1"
+      [32m+[0m[0m self_link                      = (known after apply)
+      [32m+[0m[0m server_ca_cert                 = (sensitive value)
+      [32m+[0m[0m service_account_email_address  = (known after apply)
+
+      [32m+[0m[0m replica_configuration (known after apply)
+
+      [32m+[0m[0m settings {
+          [32m+[0m[0m activation_policy     = "ALWAYS"
+          [32m+[0m[0m availability_type     = "ZONAL"
+          [32m+[0m[0m connector_enforcement = (known after apply)
+          [32m+[0m[0m disk_autoresize       = true
+          [32m+[0m[0m disk_autoresize_limit = 0
+          [32m+[0m[0m disk_size             = 10
+          [32m+[0m[0m disk_type             = "PD_SSD"
+          [32m+[0m[0m edition               = "ENTERPRISE"
+          [32m+[0m[0m pricing_plan          = "PER_USE"
+          [32m+[0m[0m tier                  = "db-f1-micro"
+          [32m+[0m[0m user_labels           = (known after apply)
+          [32m+[0m[0m version               = (known after apply)
+
+          [32m+[0m[0m backup_configuration {
+              [32m+[0m[0m enabled                        = true
+              [32m+[0m[0m point_in_time_recovery_enabled = false
+              [32m+[0m[0m start_time                     = "03:00"
+              [32m+[0m[0m transaction_log_retention_days = 1
+
+              [32m+[0m[0m backup_retention_settings {
+                  [32m+[0m[0m retained_backups = 7
+                  [32m+[0m[0m retention_unit   = "COUNT"
+                }
+            }
+
+          [32m+[0m[0m database_flags {
+              [32m+[0m[0m name  = "max_connections"
+              [32m+[0m[0m value = "100"
+            }
+
+          [32m+[0m[0m insights_config {
+              [32m+[0m[0m query_insights_enabled  = true
+              [32m+[0m[0m query_plans_per_minute  = 5
+              [32m+[0m[0m query_string_length     = 1024
+              [32m+[0m[0m record_application_tags = true
+              [32m+[0m[0m record_client_address   = true
+            }
+
+          [32m+[0m[0m ip_configuration {
+              [32m+[0m[0m ipv4_enabled    = false
+              [32m+[0m[0m private_network = "projects/spring-firefly-472108-a6/global/networks/dev-vpc"
+              [32m+[0m[0m require_ssl     = true
+              [32m+[0m[0m server_ca_mode  = (known after apply)
+              [32m+[0m[0m ssl_mode        = (known after apply)
+            }
+
+          [32m+[0m[0m location_preference (known after apply)
+
+          [32m+[0m[0m maintenance_window {
+              [32m+[0m[0m day          = 7
+              [32m+[0m[0m hour         = 4
+              [32m+[0m[0m update_track = "stable"
+            }
+        }
+    }
+
+[1m  # google_sql_user.app_user[0m will be created
+[0m  [32m+[0m[0m resource "google_sql_user" "app_user" {
+      [32m+[0m[0m host                    = (known after apply)
+      [32m+[0m[0m id                      = (known after apply)
+      [32m+[0m[0m instance                = "dd-ops-db"
+      [32m+[0m[0m name                    = "dd_ops_user"
+      [32m+[0m[0m password                = (sensitive value)
+      [32m+[0m[0m project                 = "spring-firefly-472108-a6"
+      [32m+[0m[0m sql_server_user_details = (known after apply)
+    }
+
+[1mPlan:[0m 11 to add, 0 to change, 1 to destroy.
+[0m
+Changes to Outputs:
+  [32m+[0m[0m cloud_run_urls              = {
+      [32m+[0m[0m dd_ops        = (known after apply)
+      [32m+[0m[0m file_upload   = "https://file-upload-app-lgqch76oba-an.a.run.app"
+      [32m+[0m[0m get_file_path = "https://get-file-path-lgqch76oba-an.a.run.app"
+      [32m+[0m[0m ocr_api       = "https://dd-ops-ocr-api-v2-lgqch76oba-an.a.run.app"
+    }
+  [32m+[0m[0m database_connection_name    = (known after apply)
+  [32m+[0m[0m database_private_ip         = (sensitive value)
+  [32m+[0m[0m load_balancer_ip            = (known after apply)
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Destroying... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops][0m[0m
+[0m[1mgoogle_sql_database_instance.main: Creating...[0m[0m
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Still destroying... [id=projects/spring-firefly-472108-a6/locations/asia-northeast1/services/dd-ops, 00m10s elapsed][0m[0m
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Destruction complete after 11s[0m
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Creating...[0m[0m
+[0m[1mgoogle_cloud_run_v2_service.dd_ops: Still creating... [00m10s elapsed][0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mArgument is deprecated[0m
+[33m│[0m [0m
+[33m│[0m [0m[0m  with google_sql_database_instance.main,
+[33m│[0m [0m  on main.tf line 368, in resource "google_sql_database_instance" "main":
+[33m│[0m [0m 368:       require_ssl     = [4mtrue[0m[0m
+[33m│[0m [0m
+[33m│[0m [0m`require_ssl` will be fully deprecated in a future major release. For now,
+[33m│[0m [0mplease use `ssl_mode` with a compatible `require_ssl` value instead.
+[33m│[0m [0m
+[33m│[0m [0m(and one more similar warning elsewhere)
+[33m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mError waiting to create Service: Error waiting for Creating Service: Error code 9, message: Revision 'dd-ops-00001-bxh' is not ready and cannot serve traffic. spec.template.spec.containers[0].env[1].value_from.secret_key_ref.name: Secret projects/spring-firefly-472108-a6/secrets/database-url/versions/latest was not found[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with google_cloud_run_v2_service.dd_ops,
+[31m│[0m [0m  on main.tf line 85, in resource "google_cloud_run_v2_service" "dd_ops":
+[31m│[0m [0m  85: resource "google_cloud_run_v2_service" "dd_ops" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mError, failed to create instance dd-ops-db: googleapi: Error 409: The Cloud SQL instance already exists., instanceAlreadyExists[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with google_sql_database_instance.main,
+[31m│[0m [0m  on main.tf line 335, in resource "google_sql_database_instance" "main":
+[31m│[0m [0m 335: resource "google_sql_database_instance" "main" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
